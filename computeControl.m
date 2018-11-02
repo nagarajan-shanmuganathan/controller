@@ -6,7 +6,7 @@ maxBrake = -4;
 maxAcceleration = 5;
 N = 10;
 delta = 1;
-minDist = 5;
+minDist = 10;
 
 acceleration = control(initDist, initVelocity, maxBrake, maxAcceleration, N, delta, minDist)
 
@@ -17,7 +17,7 @@ function acceleration = control(x0, v0, brake, acc, N, delta, minDist)
         variable v(N);
         variable u(N);
         whos
-        minimize(1/2 * sum(u.^2));
+        minimize(1/2 * sum(u.^2) + 1/2 * sum(v.^2));
         subject to
             norm(brake) <= u <= norm(acc);
             x >= norm(minDist);  

@@ -1,16 +1,23 @@
 % Controller program that satisfies that safety properties
 
-initDist = 5;
-initVelocity = 10;
-maxBrake = -4;
+initDistance = 18;
+initVelocity = 5;
+maxBrake = -1;
 maxAcceleration = 5;
 N = 10;
 delta = 1;
-minDist = 10;
+minDistance = 15;
+currentDistance = initDistance
+leadAcceleration = randi([maxBrake, maxAcceleration], 1, 1) %Lead car's initial acceleration
 
-acceleration = control(initDist, initVelocity, maxBrake, maxAcceleration, N, delta, minDist)
 
-function acceleration = control(x0, v0, brake, acc, N, delta, minDist) 
+while currentDistance > minDistance %Need to add other cases
+    [acceleration, distance] = control(initDistance, initVelocity, maxBrake, maxAcceleration, N, delta, minDistance)
+    
+    
+end
+
+function [acceleration, distance] = control(x0, v0, brake, acc, N, delta, minDistance)
    
     cvx_begin
         variable x(N);
@@ -20,7 +27,7 @@ function acceleration = control(x0, v0, brake, acc, N, delta, minDist)
         minimize(1/2 * sum(u.^2) + 1/2 * sum(v.^2));
         subject to
             norm(brake) <= u <= norm(acc);
-            x >= norm(minDist);  
+            x >= norm(minDistance);  
             
             x(1) == x0;
             v(1) == v0;
@@ -31,6 +38,9 @@ function acceleration = control(x0, v0, brake, acc, N, delta, minDist)
             end
         
     cvx_end
+    hold on
     plot(u)
-    acceleration = u;
+    plot(x)
+    acceleration = u(1);
+    distance = x(1);
 end

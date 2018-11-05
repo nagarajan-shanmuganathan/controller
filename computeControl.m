@@ -7,17 +7,26 @@ maxAcceleration = 5;
 N = 10;
 delta = 1;
 minDistance = 15;
-currentDistance = initDistance
-leadAcceleration = randi([maxBrake, maxAcceleration], 1, 1) %Lead car's initial acceleration
+nextDistance = initDistance;
+nextVelocity = initVelocity;
 
-
-while currentDistance > minDistance %Need to add other cases
-    [acceleration, distance] = control(initDistance, initVelocity, maxBrake, maxAcceleration, N, delta, minDistance)
+while nextDistance > minDistance %Need to add other cases
     
+    leadAcceleration = randi([maxBrake, maxAcceleration], 1, 1); %Lead car's initial acceleration
+
+    %Compute the acceleration using the controller
+    [acceleration, distance, velocity] = control(nextDistance, nextVelocity, maxBrake, maxAcceleration, N, delta, minDistance)
+    
+    %Compute the distance and velocity for the next time step
+    nextDistance = distance + velocity * delta + 0.5 * (acceleration - leadAcceleration) * delta.^2
+    nextVelocity = velocity + (acceleration - leadAcceleration) * delta
+    
+    % Computing x2* - x1*? 
+    nextDistance = nextDistance - distance
     
 end
 
-function [acceleration, distance] = control(x0, v0, brake, acc, N, delta, minDistance)
+function [acceleration, distance, velocity] = control(x0, v0, brake, acc, N, delta, minDistance)
    
     cvx_begin
         variable x(N);
@@ -43,4 +52,5 @@ function [acceleration, distance] = control(x0, v0, brake, acc, N, delta, minDis
     plot(x)
     acceleration = u(1);
     distance = x(1);
+    velocity = v(1);
 end
